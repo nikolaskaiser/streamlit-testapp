@@ -411,8 +411,7 @@ import plotly.graph_objects as go
 # ---------------------
 # Seite: Energie
 # ---------------------
-elif menu == "Energie":
-        # ----------------------------
+    # ----------------------------
     # Alle Daten
     # ----------------------------
     region_data = {
