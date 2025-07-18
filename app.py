@@ -345,3 +345,61 @@ st.plotly_chart(fig)
 
 
 
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Daten laden
+@st.cache_data
+
+def load_data():
+    df = pd.read_csv("bereinigte_daten.csv")  # Du kannst das DataFrame direkt einbinden, falls nicht als Datei
+    return df
+
+data = load_data()
+
+# Seitenlayout
+st.title("🔌 Bruttostromerzeugung aus Braunkohle in Deutschland")
+st.markdown("""
+Wähle Bundesländer aus, um deren Stromerzeugung aus Braunkohle über die Jahre zu vergleichen. 
+Bei Auswahl von **Deutschland** wird zusätzlich der Anteil an der Gesamtstromerzeugung angezeigt.
+""")
+
+# Auswahl
+bundeslaender = sorted(data['Bundesland'].unique())
+auswahl = st.multiselect("Bundesländer auswählen:", options=bundeslaender, default=["Deutschland"])
+
+# Plot absolute Erzeugung
+fig, ax = plt.subplots(figsize=(10, 5))
+
+for land in auswahl:
+    df_land = data[data['Bundesland'] == land]
+    ax.plot(df_land['Jahr'], df_land['Braunkohle_GWh'], label=land)
+
+    # Marker für politische Ziele
+    if land == "Deutschland":
+        ax.axvline(2038, color='red', linestyle='--', linewidth=1)
+        ax.text(2038, ax.get_ylim()[1]*0.95, 'Ausstieg 2038', rotation=90, color='red')
+    elif land == "Nordrhein-Westfalen":
+        ax.axvline(2030, color='orange', linestyle='--', linewidth=1)
+        ax.text(2030, ax.get_ylim()[1]*0.95, 'NRW-Aus. 2030', rotation=90, color='orange')
+
+ax.set_title("Bruttostromerzeugung aus Braunkohle (in GWh)")
+ax.set_xlabel("Jahr")
+ax.set_ylabel("GWh")
+ax.legend()
+st.pyplot(fig)
+
+# Nur wenn "Deutschland" gewählt wurde: Anteil anzeigen
+if "Deutschland" in auswahl:
+    df_dt = data[data['Bundesland'] == "Deutschland"]
+    fig2, ax2 = plt.subplots(figsize=(10, 4))
+    ax2.plot(df_dt['Jahr'], df_dt['Braunkohle_Anteil_%'], color='green')
+    ax2.axvline(2038, color='red', linestyle='--', linewidth=1)
+    ax2.text(2038, ax2.get_ylim()[1]*0.95, 'Ausstieg 2038', rotation=90, color='red')
+
+    ax2.set_title("Anteil Braunkohle an Bruttostromerzeugung Deutschland (%)")
+    ax2.set_xlabel("Jahr")
+    ax2.set_ylabel("% Anteil")
+    st.pyplot(fig2)
+
