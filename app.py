@@ -367,7 +367,8 @@ Bei Auswahl von **Deutschland** wird zusätzlich der Anteil an der Gesamtstromer
 
 # Auswahl
 bundeslaender = sorted(data['Bundesland'].unique())
-auswahl = st.multiselect("Bundesländer auswählen:", options=bundeslaender, default=["Deutschland"])
+default_value = ["Deutschland"] if "Deutschland" in bundeslaender else [bundeslaender[0]]
+auswahl = st.multiselect("Bundesländer auswählen:", options=bundeslaender, default=default_value)
 
 # Plot absolute Erzeugung
 fig, ax = plt.subplots(figsize=(10, 5))
@@ -402,4 +403,5 @@ if "Deutschland" in auswahl:
     ax2.set_xlabel("Jahr")
     ax2.set_ylabel("% Anteil")
     st.pyplot(fig2)
+
 
