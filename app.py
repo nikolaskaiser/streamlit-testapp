@@ -405,3 +405,249 @@ if "Deutschland" in auswahl:
     st.pyplot(fig2)
 
 
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+# ---------------------
+# Seite: Energie
+# ---------------------
+elif menu == "Energie":
+        # ----------------------------
+    # Alle Daten
+    # ----------------------------
+    region_data = {
+        'Nordrhein-Westfalen': {
+            'Jahr': list(range(1990, 2023)),
+            'Braunkohle_TWh': [
+                72.8, 75.3, 77.8, 73.5, 75.3, 71.9, 73.0, 74.2, 75.4, 74.5, 74.7, 70.9, 73.8, 74.0, 73.1,
+                71.2, 75.5, 74.3, 75.4, 66.5, 70.3, 73.6, 72.2, 70.4, 72.0, 75.0, 69.4, 66.5, 65.0, 52.3,
+                41.5, 46.1, 38.3
+            ],
+            'Zieljahr': 2030
+        },
+        'Brandenburg': {
+            'Jahr': list(range(2003, 2023)),
+            'Braunkohle_TWh': [
+                34.67, 35.85, 35.67, 33.92, 35.04, 33.48, 28.90, 32.89,
+                32.32, 30.76, 28.51, 30.54, 29.81, 26.69, 25.59, 24.71,
+                22.91, 19.44, 20.47, 17.95
+            ],
+            'Zieljahr': 2038
+        },
+        'Sachsen': {
+            'Jahr': list(range(1990, 2023)),
+            'Braunkohle_TWh': [
+                40.43, 34.09, 32.94, 33.40, 32.39, 30.43, 29.54, 28.78, 27.61, 25.77, 25.33,
+                24.26, 25.89, 26.89, 26.59, 25.10, 26.55, 26.46, 26.13, 21.39,
+                23.97, 25.59, 25.25, 25.31, 26.39, 26.61, 24.85, 22.80, 21.94,
+                18.83, 19.42, 19.74, 17.20
+            ],
+            'Zieljahr': 2038
+        },
+        'Sachsen-Anhalt': {
+            'Jahr': list(range(1991, 2023)),
+            'Braunkohle_TWh': [
+                4.83, 3.48, 2.18, 2.24, 2.18, 2.36, 2.31, 2.36, 2.25,
+                2.26, 2.18, 2.33, 2.28, 2.15, 2.04, 2.15, 2.18, 2.01,
+                1.78, 2.03, 2.08, 2.02, 1.99, 1.89, 1.87, 1.79, 1.72,
+                1.58, 1.59, 1.28, 1.36, 1.15
+            ],
+            'Zieljahr': 2038
+        },
+        "Berlin": {
+            "Jahr": [2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017],
+            "Braunkohle_TWh": [0.77, 0.81, 0.76, 0.68, 0.72, 0.71, 0.74, 0.79, 0.73, 0.75, 0.68, 0.69, 0.65, 0.69, 0.33],
+            "Zieljahr": 2038
+        },
+        "Hessen": {
+            "Jahr": list(range(1990, 2024)),
+            "Braunkohle_TWh": [
+                0.738, 0.473, 0.153, 0.150, 0.142, 0.155, 0.167, 0.148, 0.150, 0.082, 0.093,
+                0.144, 0.100, 0.058, 0.070, 0.084, 0.088, 0.100, 0.118, 0.077, 0.069, 0.073,
+                0.051, 0.057, 0.076, 0.088, 0.089, 0.082, 0.062, 0.084, 0.080, 0.099, 0.089, 0.085
+            ],
+            "Zieljahr": 2038
+        },
+        "Niedersachsen": {
+            "Jahr": list(range(2003, 2019)),
+            "Braunkohle_TWh": [
+                2.94, 2.72, 2.50, 2.22, 2.61, 2.54, 2.21, 2.31, 1.79, 2.27, 1.56, 2.83, 2.33, 1.87, 0.0, 0.0
+            ],
+            "Zieljahr": 2038
+        },
+        "Saarland": {
+            "Jahr": list(range(2003, 2018)),
+            "Braunkohle_TWh": [
+                0.015, 0.004, 0.017, 0.014, 0.010, None, 0.001, None, None, 0.004, 0.033, 0.030, 0.014, None, None
+            ],
+            "Zieljahr": 2038
+        },
+        "Thüringen": {
+            "Jahr": [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
+            "Braunkohle_TWh": [1.30, 1.10, 1.14, 0.33, 0.13, 0.07, 0.03, 0.02],
+            "Zieljahr": 2038
+        }
+    }
+    
+    # ----------------------------
+    # Streamlit UI
+    # ----------------------------
+    st.subheader("📈 Braunkohlestromerzeugung – Regionenvergleich")
+    # Deutschland gesamt berechnen
+    jahre = sorted(set(j for r in region_data.values() for j in r['Jahr'] if j != 2023))  # 2023 ausschließen
+    deutschland_gesamt = {'Jahr': [], 'Braunkohle_TWh': []}
+    
+    for jahr in jahre:
+        jahr_summe = 0
+        for region in region_data.values():
+            if jahr in region['Jahr']:
+                index = region['Jahr'].index(jahr)
+                wert = region['Braunkohle_TWh'][index]
+                if wert is not None:
+                    jahr_summe += wert
+        deutschland_gesamt['Jahr'].append(jahr)
+        deutschland_gesamt['Braunkohle_TWh'].append(jahr_summe)
+    
+    # Füge zur Auswahl hinzu
+    region_data['Deutschland gesamt'] = {
+        'Jahr': deutschland_gesamt['Jahr'],
+        'Braunkohle_TWh': deutschland_gesamt['Braunkohle_TWh'],
+        'Zieljahr': 2030  # kannst du beliebig setzen oder None
+    }
+
+    # Bundesländer-Auswahl
+    selected_regions = st.multiselect(
+        "Wähle Bundesländer zum Vergleich",
+        options=[r for r in region_data.keys() if r != "Deutschland gesamt"],
+        default=["Nordrhein-Westfalen", "Brandenburg"]
+    )
+    
+    # Checkbox für Deutschland gesamt
+    show_deutschland = st.checkbox("Deutschland gesamt anzeigen")
+
+
+# Gesamtstrom-Daten aus Excel laden
+df_strom = pd.read_excel("bruttostromerzeugung_braunkohle&insgesamt.xlsx", sheet_name="LAK", skiprows=5)
+df_strom = df_strom.rename(columns={
+    "Unnamed: 0": "Bundesland",
+    "Unnamed: 1": "Jahr",
+    "GWh": "Gesamtstrom_GWh"
+})
+
+# Nur relevante Spalten & gültige Einträge
+df_strom = df_strom[["Bundesland", "Jahr", "Gesamtstrom_GWh"]]
+df_strom = df_strom.dropna()
+
+# Deutschland gesamt berechnen (Summe aller Länder je Jahr)
+df_strom_deutschland = df_strom.groupby("Jahr", as_index=False).agg({"Gesamtstrom_GWh": "sum"})
+
+# Umwandeln in TWh
+df_strom_deutschland["Gesamtstrom_TWh"] = df_strom_deutschland["Gesamtstrom_GWh"] / 1000
+
+    
+     # ----------------------------
+    # Plot erstellen
+    # ----------------------------
+    fig = go.Figure()
+    
+    for region in selected_regions:
+        region_info = region_data[region]
+        df = pd.DataFrame({
+            'Jahr': region_info['Jahr'],
+            'Braunkohle_TWh': region_info['Braunkohle_TWh']
+        })
+    
+        # Linie für Region
+        fig.add_trace(go.Scatter(
+            x=df['Jahr'],
+            y=df['Braunkohle_TWh'],
+            mode='lines+markers',
+            name=region
+        ))
+    
+        # Zieljahr-Marker setzen
+        zieljahr = 2030 if region == "Nordrhein-Westfalen" else 2038
+        zieltext = "NRW 2030" if region == "Nordrhein-Westfalen" else "DE 2038"
+    
+        fig.add_trace(go.Scatter(
+            x=[zieljahr],
+            y=[0],
+            mode='markers+text',
+            marker=dict(size=10, color='green'),
+            text=[zieltext],
+            textposition='top center',
+            showlegend=False
+        ))
+    
+    # Optional: Deutschland gesamt hinzufügen
+    if show_deutschland:
+        de_info = region_data["Deutschland gesamt"]
+        df_de = pd.DataFrame({
+            'Jahr': de_info['Jahr'],
+            'Braunkohle_TWh': de_info['Braunkohle_TWh']
+        })
+    
+        # Merge mit Gesamtstromdaten
+        df_de = df_de.merge(df_strom_deutschland[['Jahr', 'Gesamtstrom_TWh']], on='Jahr', how='left')
+        df_de["Braunkohle_Anteil_%"] = df_de["Braunkohle_TWh"] / df_de["Gesamtstrom_TWh"] * 100
+    
+        # Braunkohle absolut
+        fig.add_trace(go.Scatter(
+            x=df_de['Jahr'],
+            y=df_de['Braunkohle_TWh'],
+            mode='lines+markers',
+            name="Deutschland gesamt (TWh)",
+            yaxis="y1"
+        ))
+    
+        # Braunkohle-Anteil
+        fig.add_trace(go.Scatter(
+            x=df_de['Jahr'],
+            y=df_de['Braunkohle_Anteil_%'],
+            mode='lines+markers',
+            name="Anteil Braunkohle (%)",
+            yaxis="y2",
+            line=dict(dash='dash')
+        ))
+    
+        # Marker für DE 2038
+        fig.add_trace(go.Scatter(
+            x=[2038],
+            y=[0],
+            mode='markers+text',
+            marker=dict(size=10, color='green'),
+            text=["DE 2038"],
+            textposition='top center',
+            showlegend=False,
+            yaxis="y1"
+        ))
+    
+        
+    # Layout anpassen
+    
+    fig.update_layout(
+        title='Bruttostromerzeugung aus Braunkohle im Vergleich',
+        xaxis_title='Jahr',
+        yaxis=dict(
+            title='Braunkohle in TWh',
+            titlefont=dict(color='black'),
+            tickfont=dict(color='black'),
+            anchor="x",
+            side="left"
+        ),
+        yaxis2=dict(
+            title='Anteil Braunkohle (%)',
+            titlefont=dict(color='blue'),
+            tickfont=dict(color='blue'),
+            overlaying='y',
+            side='right'
+        ),
+        legend_title='Region',
+        height=600
+    )
+    
+        
+        st.plotly_chart(fig)
+    
+
+
